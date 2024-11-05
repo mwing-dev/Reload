@@ -45,7 +45,7 @@ num_classes = 3  # Adjust this based on your number of classes
 model = SimpleCNN(num_classes=num_classes)
 
 # Load the trained model weights from the cloned repository
-model_path = os.path.join(repo_path, "Code/Training/training_model.pth")  # Replace with the correct path inside the repo
+model_path = os.path.join(repo_path, "Code/Training/Trained_Model.pth")  # Replace with the correct path inside the repo
 model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
 model.eval()
 

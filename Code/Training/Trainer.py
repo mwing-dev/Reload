@@ -1,6 +1,13 @@
-# Step 1: Clone GitHub Repository
+# Step 1: Clone GitHub Repository with authentication
+!git config --global user.email "micahwinget38@gmail.com"
+!git config --global user.name "mwing-dev"
+
+# Clone the repository (replace this with your actual token, username, and repo URL)
 !git clone https://github.com/mwing-dev/Reload.git
 repo_path = '/content/Reload'
+
+# Define the path for the Training directory in your repository
+training_dir = os.path.join(repo_path, 'Code/Training')
 
 # Step 2: Import Required Libraries
 import torch
@@ -92,7 +99,7 @@ for epoch in range(num_epochs):
 
     # Optional: Save model checkpoint every 10 epochs
     if (epoch + 1) % 10 == 0:
-        checkpoint_path = os.path.join(repo_path, f'training_model_epoch_{epoch + 1}.pth')
+        checkpoint_path = os.path.join(training_dir, f'training_model_epoch_{epoch + 1}.pth')
         torch.save(model.state_dict(), checkpoint_path)
         print(f"Checkpoint saved at {checkpoint_path}")
 
@@ -102,7 +109,7 @@ for epoch in range(num_epochs):
         !git -C {repo_path} push origin main
 
 # Final model save after training
-model_save_path = os.path.join(repo_path, 'training_model.pth')
+model_save_path = os.path.join(training_dir, 'training_model.pth')
 torch.save(model.state_dict(), model_save_path)
 print(f"Model saved to {model_save_path}")
 

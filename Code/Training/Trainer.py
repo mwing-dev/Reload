@@ -1,15 +1,21 @@
-# Step 1: Clone GitHub Repository with authentication
+# Step 1: Configure Git with your GitHub identity
 !git config --global user.email "micahwinget38@gmail.com"
 !git config --global user.name "mwing-dev"
 
-# Clone the repository (replace this with your actual token, username, and repo URL)
-!git clone https://github.com/mwing-dev/Reload.git
-repo_path = '/content/Reload'
+# Step 2: Clone the private GitHub repository using the token
+token = "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"  # Replace with your GitHub PAT
+username = "mwing-dev"
+repo_name = "Reload"
 
-# Define the path for the Training directory in your repository
+# Clone the repository using the token
+!git clone https://{username}:{token}@github.com/{username}/{repo_name}.git
+repo_path = f'/content/{repo_name}'
+
+# Define the path for the Training directory within the cloned repository
 training_dir = os.path.join(repo_path, 'Code/Training')
+os.makedirs(training_dir, exist_ok=True)  # Ensure the Training directory exists
 
-# Step 2: Import Required Libraries
+# Step 3: Import Required Libraries
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -20,22 +26,22 @@ import os
 # Define Image Size
 image_size = 128
 
-# Step 3: Set Up Data Transformations
+# Step 4: Set Up Data Transformations
 transform = transforms.Compose([
     transforms.Resize((image_size, image_size)),
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
 
-# Step 4: Load the Dataset
+# Step 5: Load the Dataset
 # Using the Training_images directory from the cloned GitHub repo
 data_dir = os.path.join(repo_path, 'Training_images')
 dataset = datasets.ImageFolder(root=data_dir, transform=transform)
 
-# Step 5: Create DataLoader
+# Step 6: Create DataLoader
 dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
 
-# Step 6: Define the CNN Model
+# Step 7: Define the CNN Model
 class SimpleCNN(nn.Module):
     def __init__(self, num_classes):
         super(SimpleCNN, self).__init__()
@@ -58,16 +64,19 @@ class SimpleCNN(nn.Module):
 num_classes = len(dataset.classes)  # Get the number of classes from the dataset
 model = SimpleCNN(num_classes=num_classes)
 
-# Step 7: Set Loss and Optimizer
+# Step 8: Set Loss and Optimizer
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-# Step 8: Check if GPU is available and move model to GPU if possible
+# Step 9: Check if GPU is available and move model to GPU if possible
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
-# Step 9: Training Loop
+# Step 10: Training Loop
 num_epochs = 20  # Number of epochs
+
+# Define your GitHub push URL with the token included for pushing commits
+push_url = f"https://{token}@github.com/{username}/{repo_name}.git"
 
 for epoch in range(num_epochs):
     model.train()
@@ -103,17 +112,37 @@ for epoch in range(num_epochs):
         torch.save(model.state_dict(), checkpoint_path)
         print(f"Checkpoint saved at {checkpoint_path}")
 
-        # Add, commit, and push the checkpoint to GitHub
-        !git -C {repo_path} add .
-        !git -C {repo_path} commit -m "Checkpoint for epoch {epoch + 1}"
-        !git -C {repo_path} push origin main
+        # Pull latest changes, add, commit, and push the checkpoint to GitHub
+        try:
+            # Stash any unstaged changes before pulling
+            !git -C {repo_path} stash
+            !git -C {repo_path} pull --rebase {push_url} main
+            # Apply stashed changes after pulling
+            !git -C {repo_path} stash pop
+            
+            # Commit and push the checkpoint
+            !git -C {repo_path} add .
+            !git -C {repo_path} commit -m "Checkpoint for epoch {epoch + 1}"
+            !git -C {repo_path} push {push_url} main
+        except Exception as e:
+            print(f"Error pushing checkpoint for epoch {epoch + 1}: {e}")
 
 # Final model save after training
 model_save_path = os.path.join(training_dir, 'training_model.pth')
 torch.save(model.state_dict(), model_save_path)
 print(f"Model saved to {model_save_path}")
 
-# Commit and push the final model to GitHub
-!git -C {repo_path} add .
-!git -C {repo_path} commit -m "Final model after training"
-!git -C {repo_path} push origin main
+# Pull latest changes, add, commit, and push the final model to GitHub
+try:
+    # Stash any unstaged changes before pulling
+    !git -C {repo_path} stash
+    !git -C {repo_path} pull --rebase {push_url} main
+    # Apply stashed changes after pulling
+    !git -C {repo_path} stash pop
+    
+    # Commit and push the final model
+    !git -C {repo_path} add .
+    !git -C {repo_path} commit -m "Final model after training"
+    !git -C {repo_path} push {push_url} main
+except Exception as e:
+    print(f"Error pushing final model: {e}")

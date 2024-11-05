@@ -1,6 +1,6 @@
-# Step 1: Mount Google Drive
-from google.colab import drive
-drive.mount('/content/drive')
+# Step 1: Clone GitHub Repository
+!git clone https://github.com/mwing-dev/Reload.git
+repo_path = '/content/Reload'
 
 # Step 2: Import Required Libraries
 import torch
@@ -21,7 +21,8 @@ transform = transforms.Compose([
 ])
 
 # Step 4: Load the Dataset
-data_dir = '/content/drive/MyDrive/Pytorch/Training_images'
+# Using the Training_images directory from the cloned GitHub repo
+data_dir = os.path.join(repo_path, 'Training_images')
 dataset = datasets.ImageFolder(root=data_dir, transform=transform)
 
 # Step 5: Create DataLoader
@@ -91,11 +92,21 @@ for epoch in range(num_epochs):
 
     # Optional: Save model checkpoint every 10 epochs
     if (epoch + 1) % 10 == 0:
-        checkpoint_path = f'/content/drive/MyDrive/Pytorch/training_model_epoch_{epoch + 1}.pth'
+        checkpoint_path = os.path.join(repo_path, f'training_model_epoch_{epoch + 1}.pth')
         torch.save(model.state_dict(), checkpoint_path)
         print(f"Checkpoint saved at {checkpoint_path}")
 
+        # Add, commit, and push the checkpoint to GitHub
+        !git -C {repo_path} add .
+        !git -C {repo_path} commit -m "Checkpoint for epoch {epoch + 1}"
+        !git -C {repo_path} push origin main
+
 # Final model save after training
-model_save_path = '/content/drive/MyDrive/Pytorch/training_model.pth'
+model_save_path = os.path.join(repo_path, 'training_model.pth')
 torch.save(model.state_dict(), model_save_path)
 print(f"Model saved to {model_save_path}")
+
+# Commit and push the final model to GitHub
+!git -C {repo_path} add .
+!git -C {repo_path} commit -m "Final model after training"
+!git -C {repo_path} push origin main

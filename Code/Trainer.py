@@ -60,7 +60,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
 # Step 9: Training Loop
-num_epochs = 100  # Number of epochs
+num_epochs = 20  # Number of epochs
 
 for epoch in range(num_epochs):
     model.train()

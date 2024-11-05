@@ -1,8 +1,17 @@
-# Step 1: Mount Google Drive
-from google.colab import drive
-drive.mount('/content/drive')
+# Step 1: Configure Git with your GitHub identity
+!git config --global user.email "micahwinget38@gmail.com"
+!git config --global user.name "mwing-dev"
 
-# Step 2: Import Required Libraries
+# Step 2: Clone the private GitHub repository using the token
+token = "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"  # Replace with your GitHub PAT
+username = "mwing-dev"
+repo_name = "Reload"
+
+# Clone the private repository using the PAT
+!git clone https://{username}:{token}@github.com/{username}/{repo_name}.git
+repo_path = f'/content/{repo_name}'
+
+# Step 3: Import Required Libraries
 !pip install gradio  # Install Gradio
 import gradio as gr
 import torch
@@ -11,9 +20,8 @@ import torch.nn.functional as F
 from torchvision import transforms
 from PIL import Image
 import os
-from datetime import datetime
 
-# Step 3: Define the CNN Model
+# Step 4: Define the CNN Model
 class SimpleCNN(nn.Module):
     def __init__(self, num_classes):
         super(SimpleCNN, self).__init__()
@@ -32,27 +40,21 @@ class SimpleCNN(nn.Module):
         x = self.fc2(x)
         return x
 
-# Step 4: Initialize Model and Load Pre-trained Weights
-num_classes = 3 
+# Step 5: Initialize Model and Load Pre-trained Weights
+num_classes = 3  # Adjust this based on your number of classes
 model = SimpleCNN(num_classes=num_classes)
-model.load_state_dict(torch.load('/content/drive/MyDrive/Pytorch/training_model.pth'))
+
+# Load the trained model weights from the cloned repository
+model_path = os.path.join(repo_path, "/content/Reload/Code/Training/training_model.pth")  # Replace with the correct path inside the repo
+model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
 model.eval()
 
-# Step 5: Define Image Transformations
+# Step 6: Define Image Transformations
 transform = transforms.Compose([
     transforms.Resize((128, 128)),
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
-
-# Step 6: Set Paths for Output Subfolders
-output_folder = '/content/drive/MyDrive/Pytorch/Predictions'
-pass_folder = os.path.join(output_folder, "Pass")
-fail_folder = os.path.join(output_folder, "Fail")
-
-# Create the output folders if they don't exist
-os.makedirs(pass_folder, exist_ok=True)
-os.makedirs(fail_folder, exist_ok=True)
 
 # Move model to GPU if available
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -62,7 +64,7 @@ model.to(device)
 class_names = ['No_Case', 'No_Powder', 'Yes_Powder']
 
 # Step 7: Gradio Function to Process Uploaded Image and Display Result
-def classify_and_save(image):
+def classify_image(image):
     # Prepare the image for model prediction
     image = image.convert("RGB")
     transformed_image = transform(image).unsqueeze(0).to(device)
@@ -77,31 +79,15 @@ def classify_and_save(image):
     predicted_class = class_names[predicted.item()]
     confidence_percentage = confidence.item() * 100
 
-    # Generate a timestamp and construct the output filename
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_image_name = f"{predicted_class}_{confidence_percentage:.2f}_{timestamp}.jpg"
-
-    # Determine the output path based on the predicted class
-    if predicted_class == "Yes_Powder":
-        output_image_path = os.path.join(pass_folder, output_image_name)
-        result = "Pass"
-    else:
-        output_image_path = os.path.join(fail_folder, output_image_name)
-        result = "Fail"
-
-    # Save the image to the appropriate folder
-    image.save(output_image_path)
-
-    # Return result for display
+    # Return the prediction result without saving the image
     return {
         "Prediction": predicted_class,
-        "Confidence": f"{confidence_percentage:.2f}%",
-        "Result": result
+        "Confidence": f"{confidence_percentage:.2f}%"
     }
 
-# Step 8: Create Gradio Interface with updated syntax
+# Step 8: Create Gradio Interface
 interface = gr.Interface(
-    fn=classify_and_save,
+    fn=classify_image,
     inputs=gr.Image(type="pil"),
     outputs=gr.JSON(),
     title="Image Classification - Pass/Fail"

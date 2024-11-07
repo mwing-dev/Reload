@@ -1,0 +1,92 @@
+!git config --global user.email "micahwinget38@gmail.com"
+!git config --global user.name "mwing-dev"
+
+username = "mwing-dev"
+repo_name = "Reload_Trained_Model"
+
+!git clone https://github.com/{username}/{repo_name}.git
+repo_path = f'/content/{repo_name}'
+
+!pip install gradio pyserial
+import gradio as gr
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torchvision import transforms
+from PIL import Image
+import os
+import serial
+import time
+
+class SimpleCNN(nn.Module):
+    def __init__(self, num_classes):
+        super(SimpleCNN, self).__init__()
+        self.conv1 = nn.Conv2d(3, 16, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv2d(16, 32, kernel_size=3, padding=1)
+        self.fc1 = nn.Linear(32 * (128 // 4) * (128 // 4), 128)
+        self.fc2 = nn.Linear(128, num_classes)
+
+    def forward(self, x):
+        x = torch.relu(self.conv1(x))
+        x = torch.max_pool2d(x, 2)
+        x = torch.relu(self.conv2(x))
+        x = torch.max_pool2d(x, 2)
+        x = x.view(x.size(0), -1)
+        x = torch.relu(self.fc1(x))
+        x = self.fc2(x)
+        return x
+
+num_classes = 3
+model = SimpleCNN(num_classes=num_classes)
+
+model_path = os.path.join(repo_path, "Trained_Model.pth")
+model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+model.eval()
+
+transform = transforms.Compose([
+    transforms.Resize((128, 128)),
+    transforms.ToTensor(),
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+])
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+
+class_names = ['No_Case', 'No_Powder', 'Yes_Powder']
+
+pico_serial = serial.Serial('/dev/ttyACM0', 115200)  # Replace with the correct port
+
+def classify_image(image):
+    image = image.convert("RGB")
+    transformed_image = transform(image).unsqueeze(0).to(device)
+
+    with torch.no_grad():
+        output = model(transformed_image)
+        probabilities = F.softmax(output, dim=1)
+        confidence, predicted = torch.max(probabilities, 1)
+
+    predicted_class = class_names[predicted.item()]
+    confidence_percentage = confidence.item() * 100
+
+    if predicted_class == "Yes_Powder":
+        result = "Pass"
+        pico_serial.write(b'pass\n')
+    else:
+        result = "Fail"
+        pico_serial.write(b'fail\n')
+
+    return {
+        "Prediction": predicted_class,
+        "Confidence": f"{confidence_percentage:.2f}%",
+        "Result": result
+    }
+
+interface = gr.Interface(
+    fn=classify_image,
+    inputs=gr.Image(type="pil"),
+    outputs=gr.JSON(),
+    title="Image Classification - Pass/Fail"
+)
+
+interface.launch()
+pico_serial.close()

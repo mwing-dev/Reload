@@ -1,21 +1,11 @@
-!git config --global user.email "micahwinget38@gmail.com"
-!git config --global user.name "mwing-dev"
-
-username = "mwing-dev"
-repo_name = "Reload_Trained_Model"
-
-!git clone https://github.com/{username}/{repo_name}.git
-repo_path = f'/content/{repo_name}'
-
-!pip install gradio pyserial
+import os
+import serial
 import gradio as gr
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import transforms
 from PIL import Image
-import os
-import serial
 import time
 
 class SimpleCNN(nn.Module):
@@ -39,7 +29,7 @@ class SimpleCNN(nn.Module):
 num_classes = 3
 model = SimpleCNN(num_classes=num_classes)
 
-model_path = os.path.join(repo_path, "Trained_Model.pth")
+model_path = os.path.join('/app/Reload_Trained_Model', "Trained_Model.pth")
 model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
 model.eval()
 
@@ -54,7 +44,12 @@ model.to(device)
 
 class_names = ['No_Case', 'No_Powder', 'Yes_Powder']
 
-pico_serial = serial.Serial('/dev/ttyACM0', 115200)  # Replace with the correct port
+pico_serial = None
+if os.path.exists('/dev/ttyACM0'):
+    pico_serial = serial.Serial('/dev/ttyACM0', 115200)
+    print("Connected to /dev/ttyACM0")
+else:
+    print("Warning: /dev/ttyACM0 not found. Running without serial connection.")
 
 def classify_image(image):
     image = image.convert("RGB")
@@ -68,17 +63,18 @@ def classify_image(image):
     predicted_class = class_names[predicted.item()]
     confidence_percentage = confidence.item() * 100
 
-    if predicted_class == "Yes_Powder":
-        result = "Pass"
-        pico_serial.write(b'pass\n')
+    if pico_serial:
+        if predicted_class == "Yes_Powder":
+            pico_serial.write(b'pass\n')
+        else:
+            pico_serial.write(b'fail\n')
     else:
-        result = "Fail"
-        pico_serial.write(b'fail\n')
+        print("Serial device not available, skipping serial communication.")
 
     return {
         "Prediction": predicted_class,
         "Confidence": f"{confidence_percentage:.2f}%",
-        "Result": result
+        "Result": "Pass" if predicted_class == "Yes_Powder" else "Fail"
     }
 
 interface = gr.Interface(
@@ -88,5 +84,7 @@ interface = gr.Interface(
     title="Image Classification - Pass/Fail"
 )
 
-interface.launch()
-pico_serial.close()
+interface.launch(server_name="0.0.0.0", server_port=7860)
+
+if pico_serial:
+    pico_serial.close()

@@ -78,4 +78,6 @@ This project uses an image classification model to detect the presence of a spec
   cd reload
   docker build -t reload_app .
   docker run -p 7860:7860 --device=/dev/ttyACM1 reload_app
+```
 
+jhjhj

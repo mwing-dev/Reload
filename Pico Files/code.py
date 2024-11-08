@@ -3,25 +3,21 @@ import digitalio
 import board
 import usb_cdc
 
-# Set up GPIO pins for LEDs
 pass_led = digitalio.DigitalInOut(board.GP15)
 pass_led.direction = digitalio.Direction.OUTPUT
 fail_led = digitalio.DigitalInOut(board.GP14)
 fail_led.direction = digitalio.Direction.OUTPUT
 
-# Listening for data from USB
-usb_serial = usb_cdc.data  # Use the data channel
+usb_serial = usb_cdc.data
 
 print("Listening for data...")
 
 while True:
-    if usb_serial and usb_serial.in_waiting > 0:  # Check that usb_serial is not None
+    if usb_serial and usb_serial.in_waiting > 0:
         try:
-            # Read incoming data
             data = usb_serial.readline().decode('utf-8').strip()
             print("Received:", data)
 
-            # Process the command
             if data == "pass":
                 print("Triggering Pass LED")
                 pass_led.value = True
@@ -42,4 +38,4 @@ while True:
             print(f"Error reading from USB: {e}")
             usb_serial.write(b"Error reading command\n")
 
-    time.sleep(0.1)  # Small delay to prevent excessive CPU usage
+    time.sleep(0.1)

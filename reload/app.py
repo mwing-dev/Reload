@@ -44,7 +44,7 @@ model.to(device)
 class_names = ['No_Case', 'No_Powder', 'Yes_Powder']
 
 pico_serial = None
-serial_port = '/dev/ttyACM1'
+serial_port = '/dev/ttyACM1' #you may need to adjust the serial port depending on what your pico shows up as.
 if os.path.exists(serial_port):
     pico_serial = serial.Serial(serial_port, 115200)
     print(f"Connected to {serial_port}")

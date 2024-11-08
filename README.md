@@ -19,6 +19,7 @@ This project uses an image classification model to detect the presence of a spec
 ### Hardware
 - Raspberry Pi Pico with CircuitPython installed.
 - Two LEDs connected to GPIO pins 14 (Fail) and 15 (Pass) on the Pico.
+- Two 330 Ω resistors (Or whichever work with your LEDs)
 - USB connection between the Pico and the host machine.
 
 ### Software
@@ -31,7 +32,7 @@ This project uses an image classification model to detect the presence of a spec
 
 ### 1. Set Up Raspberry Pi Pico
 
-1. Install **CircuitPython** on the Pico.
+1. Install [CircuitPython](https://circuitpython.org/board/raspberry_pi_pico/) on the Pico.
 2. Copy the following code to `boot.py` on the Pico to enable USB data communication:
 
    ```python

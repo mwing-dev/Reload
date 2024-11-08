@@ -19,7 +19,7 @@ This project uses an image classification model to detect the presence of a spec
 ### Hardware
 - Raspberry Pi Pico with CircuitPython installed.
 - Two LEDs connected to GPIO pins 14 (Fail) and 15 (Pass) on the Pico.
-- Two 330 Ω resistors (Or whichever work with your LEDs)
+- Two 330 Ω resistors (or whichever work with your LEDs)
 - USB connection between the Pico and the host machine.
 
 ### Software

@@ -94,7 +94,7 @@ http://localhost:7860
 -	Send a "fail" command otherwise, turning on the "Fail" LED.
 
 ## Wiring Diagram
-![Wiring Diagram](https://imgur.com/a/eJsDWeG.png)
+![Wiring Diagram](https://imgur.com/a/eJsDWeG.jpg)
 
 
 ## Project Files

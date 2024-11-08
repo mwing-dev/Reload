@@ -80,4 +80,17 @@ This project uses an image classification model to detect the presence of a spec
   docker run -p 7860:7860 --device=/dev/ttyACM1 reload_app
 ```
 
-jhjhj
+### 3. Access the Web Interface
+Once the Docker container is running, access the Gradio web interface at:
+```url
+http://localhost:7860
+```
+
+### 4. Use the Application
+1.	Upload an image through the Gradio interface.
+2.	View the classification result (e.g., "Yes_Powder" or "No_Powder").
+3.	Based on the result, the application will:
+o	Send a "pass" command to the Pico if powder is detected, turning on the "Pass" LED.
+o	Send a "fail" command otherwise, turning on the "Fail" LED.
+
+

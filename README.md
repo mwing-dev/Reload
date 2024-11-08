@@ -39,32 +39,35 @@ This project uses an image classification model to detect the presence of a spec
    usb_cdc.enable(data=True)
    
 3. Copy the main code to code.py on the Pico:
-   '''python
+   
+   ```python
    import time
-import digitalio
-import board
-import usb_cdc
+   import digitalio
+   import board
+   import usb_cdc
 
-pass_led = digitalio.DigitalInOut(board.GP15)
-pass_led.direction = digitalio.Direction.OUTPUT
-fail_led = digitalio.DigitalInOut(board.GP14)
-fail_led.direction = digitalio.Direction.OUTPUT
+   pass_led = digitalio.DigitalInOut(board.GP15)
+   pass_led.direction = digitalio.Direction.OUTPUT
+   fail_led = digitalio.DigitalInOut(board.GP14)
+   fail_led.direction = digitalio.Direction.OUTPUT
 
-usb_serial = usb_cdc.data
+   usb_serial = usb_cdc.data
 
-while True:
-    if usb_serial and usb_serial.in_waiting > 0:
-        data = usb_serial.readline().decode('utf-8').strip()
-        if data == "pass":
-            pass_led.value = True
-            time.sleep(5)
-            pass_led.value = False
-            usb_serial.write(b"Pass LED flashed\n")
-        elif data == "fail":
-            fail_led.value = True
-            time.sleep(5)
-            fail_led.value = False
-            usb_serial.write(b"Fail LED flashed\n")
-        else:
-            usb_serial.write(b"Unknown command\n")
-    time.sleep(0.1)
+   while True:
+       if usb_serial and usb_serial.in_waiting > 0:
+           data = usb_serial.readline().decode('utf-8').strip()
+           if data == "pass":
+               pass_led.value = True
+               time.sleep(5)
+               pass_led.value = False
+               usb_serial.write(b"Pass LED flashed\n")
+           elif data == "fail":
+               fail_led.value = True
+               time.sleep(5)
+               fail_led.value = False
+               usb_serial.write(b"Fail LED flashed\n")
+           else:
+               usb_serial.write(b"Unknown command\n")
+       time.sleep(0.1)
+
+   

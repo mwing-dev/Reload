@@ -93,6 +93,10 @@ http://localhost:7860
 -	Send a "pass" command to the Pico if powder is detected, turning on the "Pass" LED.
 -	Send a "fail" command otherwise, turning on the "Fail" LED.
 
+## Wiring Diagram
+![Wiring Diagram](https://imgur.com/a/eJsDWeG.png)
+
+
 ## Project Files
 - app.py: Main application file that loads the model, processes images, and communicates with the Pico.
 - Dockerfile: Docker configuration to build the application image.

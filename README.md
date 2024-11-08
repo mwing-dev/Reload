@@ -94,9 +94,7 @@ http://localhost:7860
 -	Send a "fail" command otherwise, turning on the "Fail" LED.
 
 ## Wiring Diagram
-<div style="text-align: center;">
-    <img src="https://imgur.com/HO8jAk3.jpg" alt="Wiring Diagram" width="300" height="600">
-</div>
+<img src="https://imgur.com/HO8jAk3.jpg" alt="Wiring Diagram" width="300" height="600"> 
 
 ## Project Files
 - app.py: Main application file that loads the model, processes images, and communicates with the Pico.

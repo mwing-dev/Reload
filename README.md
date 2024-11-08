@@ -70,4 +70,12 @@ This project uses an image classification model to detect the presence of a spec
                usb_serial.write(b"Unknown command\n")
        time.sleep(0.1)
 
-   
+### 2. Set Up the Dockerized Application
+1.	Clone or download this repository.
+2.	Build the Docker image and run the container:
+
+  ```sh
+  cd reload
+  docker build -t reload_app .
+  docker run -p 7860:7860 --device=/dev/ttyACM1 reload_app
+

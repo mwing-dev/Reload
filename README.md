@@ -38,7 +38,7 @@ This project uses an image classification model to detect the presence of a spec
    import usb_cdc
    usb_cdc.enable(data=True)
    
-3. Copy the main code to code.py on the Pico:
+3. Copy the main code to `code.py` on the Pico:
    
    ```python
    import time

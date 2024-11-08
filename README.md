@@ -94,23 +94,23 @@ o	Send a "pass" command to the Pico if powder is detected, turning on the "Pass"
 o	Send a "fail" command otherwise, turning on the "Fail" LED.
 
 ## Project Files
-•	app.py: Main application file that loads the model, processes images, and communicates with the Pico.
-•	Dockerfile: Docker configuration to build the application image.
-•	requirements.txt: Python dependencies for the project.
+- •	app.py: Main application file that loads the model, processes images, and communicates with the Pico.
+- •	Dockerfile: Docker configuration to build the application image.
+- •	requirements.txt: Python dependencies for the project.
 
 ## Troubleshooting
-•	Pico Not Detected: If you see a message like Warning: /dev/ttyACM1 not found. Running without serial connection., ensure the Pico is connected and that Docker has permission to access it. Run the container with --device=/dev/ttyACM1.
-•	LEDs Not Lighting: Verify that the Pico code is running correctly and that the usb_cdc data channel is enabled.
-•	Model Loading Warning: FutureWarning messages may appear for PyTorch model loading. These warnings can generally be ignored.
+- •	Pico Not Detected: If you see a message like Warning: /dev/ttyACM1 not found. Running without serial connection., ensure the Pico is connected and that Docker has permission to access it. Run the container with --device=/dev/ttyACM1.
+- •	LEDs Not Lighting: Verify that the Pico code is running correctly and that the usb_cdc data channel is enabled.
+- •	Model Loading Warning: FutureWarning messages may appear for PyTorch model loading. These warnings can generally be ignored.
 
 ## Future Enhancements
-•	Additional Classifications: Expand the model to classify more types of objects or materials.
-•	Notification System: Integrate an SMS or email alert system to notify users of the classification result.
-•	Web Interface Customization: Add more styling and functionalities to the Gradio web interface.
+- •	Additional Classifications: Expand the model to classify more types of objects or materials.
+- •	Notification System: Integrate an SMS or email alert system to notify users of the classification result.
+- •	Web Interface Customization: Add more styling and functionalities to the Gradio web interface.
 
 ## License
 This project is open source and available under the [MIT License](https://opensource.org/license/mit).
 
 ## Acknowledgments
-•	This project uses [Gradio](https://www.gradio.app/) for the web interface.
-•	Model developed with [PyTorch](https://pytorch.org/).
+- •	This project uses [Gradio](https://www.gradio.app/) for the web interface.
+- •	Model developed with [PyTorch](https://pytorch.org/).
